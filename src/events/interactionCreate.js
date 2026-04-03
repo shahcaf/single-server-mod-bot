@@ -83,15 +83,20 @@ module.exports = {
             const helpCmd = client.commands.get('cmd');
 
             try {
-                if (interaction.customId.startsWith('help_') && helpCmd?.handleButton) {
-                    await helpCmd.handleButton(interaction, client);
-                } else if (setupCmd?.handleButton) {
-                    await setupCmd.handleButton(interaction, client);
+                if (interaction.customId.startsWith('help_')) {
+                    if (helpCmd?.handleButton) await helpCmd.handleButton(interaction, client);
+                } else if (interaction.customId.startsWith('ticket_')) {
+                    if (setupCmd?.handleButton) await setupCmd.handleButton(interaction, client);
+                }
+                
+                // Final safety: if no response was sent, send a generic one or end it
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.deferUpdate().catch(() => null);
                 }
             } catch (e) {
                 console.error('[Button Error]', e);
                 if (!interaction.replied && !interaction.deferred) {
-                    await interaction.reply({ content: 'An error occurred processing that button.', ephemeral: false }).catch(() => null);
+                    await interaction.reply({ content: '❌ An error occurred processing this interaction.', ephemeral: true }).catch(() => null);
                 }
             }
         }
