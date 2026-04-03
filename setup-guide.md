@@ -60,4 +60,14 @@ This bot includes a built-in Express server specifically to keep it alive on fre
 ---
 
 ### Need help?
-The code uses `better-sqlite3` which saves locally. Be aware that on Ephemeral File Systems (like Render's free tier), that data will reset on redeployment unless you attach a persistent disk. For full permanence, a small VPS is highly recommended.
+The code uses `sql.js` (WebAssembly) which saves to `bot.sqlite` in the `data` directory. Be aware that on Ephemeral File Systems (like Render's free tier), that data will reset on redeployment unless you attach a persistent disk. For full permanence, a small VPS is highly recommended.
+
+---
+
+## 5) One-Click Deploy (Render Blueprint)
+If you see the `render.yaml` file in your repository, you can simply use Render's **Blueprints** feature:
+1. Connect your GitHub.
+2. Search for the repository.
+3. Render will automatically detect the settings and ask for your **Secrets** (BOT_TOKEN, CLIENT_ID, etc.).
+
+This is the easiest way to get it running!

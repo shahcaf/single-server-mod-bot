@@ -56,14 +56,14 @@ module.exports = {
     
     async handleButton(interaction, client) {
         if (interaction.customId === 'ticket_create') {
-            
+            await interaction.deferReply({ ephemeral: true }).catch(() => null);
 
             const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
             const categoryId = config.tickets?.categoryId;
             const supportRoleId = config.tickets?.supportRole;
 
             if (!categoryId || !supportRoleId) {
-                return interaction.followUp({ content: 'The ticket system has not been setup correctly via `/setup` yet.'});
+                return interaction.editReply({ content: '❌ The ticket system has not been setup correctly via `/setup` yet.'});
             }
 
             // Check if user already has an open ticket
@@ -71,7 +71,7 @@ module.exports = {
             const existingTicket = stmt.get(interaction.user.id, interaction.guild.id, 'open');
 
             if (existingTicket) {
-                return interaction.followUp({ content: `You already have an open ticket: <#${existingTicket.channelId}>` });
+                return interaction.editReply({ content: `⚠️ You already have an open ticket: <#${existingTicket.channelId}>` });
             }
 
             try {
@@ -99,8 +99,8 @@ module.exports = {
                 insertStmt.run(channel.id, interaction.user.id, interaction.guild.id, 'open');
 
                 const embed = new EmbedBuilder()
-                    .setTitle(`Ticket: ${interaction.user.tag}`)
-                    .setDescription('Please describe your issue here. Our support team will be with you shortly.')
+                    .setTitle(`🎫 Ticket: ${interaction.user.tag}`)
+                    .setDescription('Please describe your issue here. Our support team will be with you shortly.\n\nType `/close` or click the button below to end this session.')
                     .setColor('#2b2d31');
 
                 const closeBtn = new ButtonBuilder()
@@ -113,25 +113,24 @@ module.exports = {
 
                 await channel.send({ content: `${interaction.user} <@&${supportRoleId}>`, embeds: [embed], components: [row] });
 
-                return interaction.followUp({ content: `Ticket created: ${channel}` });
+                return interaction.editReply({ content: `✅ Ticket created: ${channel}` });
             } catch (err) {
                 console.error(err);
-                return interaction.followUp({ content: 'Failed to create a ticket channel. Make sure my role has permission to create channels.' });
+                return interaction.editReply({ content: '❌ Failed to create a ticket channel. Make sure my role has permission to create channels.' });
             }
 
         } else if (interaction.customId === 'ticket_close') {
-            
+            await interaction.deferReply({ ephemeral: false }).catch(() => null);
             
             const stmt = db.prepare('SELECT * FROM tickets WHERE channelId = ?');
             const ticket = stmt.get(interaction.channel.id);
 
-            if (!ticket) return interaction.followUp({ content: 'This is not a registered ticket channel.', ephemeral: false });
+            if (!ticket) return interaction.editReply({ content: '❌ This is not a registered ticket channel.' });
 
             try {
                 const messages = await interaction.channel.messages.fetch({ limit: 100 });
                 const transcriptData = messages.map(m => `${new Date(m.createdTimestamp).toLocaleString()} - ${m.author.tag}: ${m.content}`).reverse().join('\n');
                 
-                const fs = require('fs');
                 const filePath = path.join(__dirname, `../../../data/transcript-${interaction.channel.id}.txt`);
                 fs.writeFileSync(filePath, transcriptData);
 
@@ -140,7 +139,7 @@ module.exports = {
                     const logChannel = client.channels.cache.get(config.channels.modLogs);
                     if (logChannel) {
                         await logChannel.send({
-                            content: `Ticket closed for <@${ticket.userId}>`,
+                            content: `🔐 Ticket closed for <@${ticket.userId}>`,
                             files: [filePath]
                         }).catch(() => null);
                     }
@@ -156,7 +155,7 @@ module.exports = {
 
             db.prepare('UPDATE tickets SET status = ? WHERE channelId = ?').run('closed', interaction.channel.id);
 
-            await interaction.followUp({ content: 'Ticket will be closed in 5 seconds...' });
+            await interaction.editReply({ content: '🔒 Ticket will be archived and closed in 5 seconds...' });
             
             setTimeout(() => {
                 interaction.channel.delete('Ticket Closed by user').catch(() => null);
