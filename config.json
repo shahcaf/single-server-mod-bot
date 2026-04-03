@@ -1,0 +1,50 @@
+{
+  "roles": {
+    "admin": "YOUR_ADMIN_ROLE_ID",
+    "moderator": "YOUR_MOD_ROLE_ID"
+  },
+  "channels": {
+    "modLogs": "1332827763748634705"
+  },
+  "automod": {
+    "antiSpam": {
+      "enabled": true,
+      "messageLimit": 5,
+      "timeWindowMs": 5000
+    },
+    "antiLinks": {
+      "enabled": true,
+      "whitelist": [
+        "https://youtube.com",
+        "https://discord.com",
+        "https://tenor.com"
+      ]
+    },
+    "antiInvites": {
+      "enabled": true
+    },
+    "badWords": {
+      "enabled": true,
+      "words": [
+        "badword1",
+        "badword2"
+      ]
+    },
+    "capsSpam": {
+      "enabled": true,
+      "threshold": 0.7,
+      "minLength": 10
+    }
+  },
+  "punishments": {
+    "1": "warn",
+    "3": "timeout",
+    "5": "kick",
+    "7": "ban"
+  },
+  "tickets": {
+    "categoryId": "1482403983787294925",
+    "supportRole": "1488218818235990160"
+  },
+  "maintenanceMode": false
+}
