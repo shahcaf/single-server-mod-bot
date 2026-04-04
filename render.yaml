@@ -16,7 +16,7 @@ services:
       - key: PORT
         value: "3000"
       - key: NODE_VERSION
-        value: "20.x"
+        value: "18.x"
       - key: DEV_ID
         sync: false
       - key: UPDATE_WEBHOOK
