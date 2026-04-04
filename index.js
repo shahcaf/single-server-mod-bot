@@ -51,6 +51,10 @@ process.on('uncaughtException', error => {
   console.error('Uncaught Exception:', error);
 });
 
-client.login(process.env.BOT_TOKEN).catch(err => {
+console.log('[System] Attempting to connect to Discord Gateway...');
+client.login(process.env.BOT_TOKEN).then(() => {
+    console.log('[System] Login call completed.');
+}).catch(err => {
     console.error('[Error] Failed to login. Check your BOT_TOKEN in .env file.');
+    console.error(err);
 });
