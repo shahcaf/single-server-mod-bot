@@ -21,6 +21,19 @@ const client = new Client({
 // Fix Express for deployment (ensure it listens on all interfaces)
 app.listen(PORT, '0.0.0.0', () => console.log(`Keep-alive server running on port ${PORT}`));
 
+client.on('debug', (info) => {
+    if (info.includes('Heartbeat')) return; // ignore heartbeat noise
+    console.log(`[DJS Debug] ${info}`);
+});
+
+client.on('shardReady', (shardId) => {
+    console.log(`[DJS Shard] Shard ${shardId} ready.`);
+});
+
+client.on('error', (error) => {
+    console.error('[DJS Error]', error);
+});
+
 client.commands = new Collection();
 client.cooldowns = new Collection();
 
