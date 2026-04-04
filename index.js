@@ -37,15 +37,10 @@ client.on('error', (error) => {
 client.commands = new Collection();
 client.cooldowns = new Collection();
 
-// Load Database
-require('./src/database/db.js');
-
-// Autonomous Intelligence
-const autonomous = require('./src/utils/autonomous');
-
-// Load Handlers
+// Initialize commands and events
 const loadCommands = require('./src/handlers/commandHandler');
 const loadEvents = require('./src/handlers/eventHandler');
+const autonomous = require('./src/utils/autonomous');
 
 loadCommands(client);
 loadEvents(client);
@@ -56,18 +51,24 @@ client.once('ready', () => {
     console.log('[System] Autonomous Intelligence Matrix engaged.');
 });
 
-// Error Handling to prevent crashes
-process.on('unhandledRejection', error => {
-  console.error('Unhandled promise rejection:', error);
-});
-process.on('uncaughtException', error => {
-  console.error('Uncaught Exception:', error);
-});
+// Error Handling
+process.on('unhandledRejection', error => console.error('Unhandled promise rejection:', error));
+process.on('uncaughtException', error => console.error('Uncaught Exception:', error));
 
-console.log('[System] Attempting to connect to Discord Gateway...');
-client.login(process.env.BOT_TOKEN).then(() => {
-    console.log('[System] Login call completed.');
-}).catch(err => {
-    console.error('[Error] Failed to login. Check your BOT_TOKEN in .env file.');
-    console.error(err);
-});
+// Load database and login once ready
+const db = require('./src/database/db.js');
+
+async function startup() {
+    console.log('[System] Waiting for database initialization...');
+    await db._initPromise;
+    
+    console.log('[System] Attempting to connect to Discord Gateway...');
+    client.login(process.env.BOT_TOKEN).then(() => {
+        console.log('[System] Login call completed.');
+    }).catch(err => {
+        console.error('[Error] Failed to login. Check your BOT_TOKEN in .env file.');
+        console.error(err);
+    });
+}
+
+startup();
